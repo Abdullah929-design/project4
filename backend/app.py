@@ -7,7 +7,11 @@ DEFAULT_FINAL_MODE = "LR"   # "LR" = Logistic Regression only, "VOTE" = majority
 
 # --- app ---
 app = Flask(__name__)
-CORS(app)
+
+# allow override via env var, comma-separated list, default wildcard
+_origins = os.getenv("ALLOWED_ORIGINS", "*")
+ALLOWED_ORIGINS = [o.strip() for o in _origins.split(",") if o.strip()] or ["*"]
+CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGINS}}, supports_credentials=False)
 
 # --- paths ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -78,6 +82,25 @@ def predict():
         "LR_probability_real": proba_LR,
         "final": label(final)
     })
+
+def _origin_allowed(origin: str) -> bool:
+    if not origin:
+        return False
+    if "*" in ALLOWED_ORIGINS:
+        return True
+    return origin in ALLOWED_ORIGINS
+
+@app.after_request
+def add_cors_headers(response):
+    origin = request.headers.get("Origin")
+    if _origin_allowed(origin):
+        response.headers["Access-Control-Allow-Origin"] = origin if "*" not in ALLOWED_ORIGINS else "*"
+    elif "*" in ALLOWED_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    response.headers["Vary"] = "Origin"
+    return response
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
