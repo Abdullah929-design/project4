@@ -2,6 +2,9 @@
 
 A comprehensive AI-powered application designed to detect and analyze fake news using machine learning and natural language processing techniques.
 
+<img width="1536" height="2048" alt="fakenewsdetectorbyabdullah929 netlify app_(iPad Mini)" src="https://github.com/user-attachments/assets/432d9d78-3944-4fd5-89a6-2ff6a5792fc2" />
+
+
 ## 🚀 Features
 
 - **Real-time News Analysis**: Analyze news articles and content for authenticity
